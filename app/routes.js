@@ -210,30 +210,30 @@ router.post('/eligibility_two', function (req, res) {
   }
 })
 
-router.post('/question_email_address_input', function (req, res) {
-  const email = req.session.data.question_email_address
-  const previousApplicationEmail = req.session.data.previous_application_email
+// router.post('/question_email_address_input', function (req, res) {
+//   const email = req.session.data.question_email_address
+//   const previousApplicationEmail = req.session.data.previous_application_email
 
-  if (!email) {
-    const error = { text: 'Enter your email address' }
-    return res.render('question_email_address', { error })
-  }
+//   if (!email) {
+//     const error = { text: 'Enter your email address' }
+//     return res.render('question_email_address', { error })
+//   }
 
-  if (
-    email &&
-    validator.isEmail(email) &&
-    previousApplicationEmail.toString() === email
-  ) {
-    res.redirect('/govuk_previous_application_email')
-  }
+//   if (
+//     email &&
+//     validator.isEmail(email) &&
+//     previousApplicationEmail.toString() === email
+//   ) {
+//     res.redirect('/govuk_previous_application_email')
+//   }
 
-  if (email && validator.isEmail(email)) {
-    res.redirect('/govuk_create_check_email')
-  } else {
-    const error = { text: 'Enter a valid email address' }
-    return res.render('question_email_address', { error })
-  }
-})
+//   if (email && validator.isEmail(email)) {
+//     res.redirect('/govuk_create_check_email')
+//   } else {
+//     const error = { text: 'Enter a valid email address' }
+//     return res.render('question_email_address', { error })
+//   }
+// })
 
 router.post('/question_name_from_identity_claim_choice', function (req, res) {
   const nameChoice = req.session.data.name_at_discharge
