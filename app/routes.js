@@ -141,12 +141,8 @@ router.post('/start_veteran_apply_choice', function (req, res) {
   const answer = req.session.data.start_veteran_match_status
 
   if (!answer) {
-    const error = { text: "Select 'happy path', 'unhappy path' or 'Test GOV.UK Sign In IPV'" }
+    const error = { text: "Select 'Test GOV.UK Sign In IPV' or 'Skip straight to matching" }
     return res.render('index', { error })
-  }
-
-  if (answer === 'Fail') {
-    req.session.data.set_unhappy_path = true
   }
 
   if (answer === 'IPV') {
@@ -209,7 +205,7 @@ router.post('/eligibility_two', function (req, res) {
         req.session.data[`previous_DI_name_${index + 1}`] = name
       })
 
-      res.redirect('/govuk_create_or_sign_in')
+      res.redirect('/question_name_from_identity_claim')
     }
   }
 })
