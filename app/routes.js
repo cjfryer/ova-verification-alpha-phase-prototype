@@ -124,18 +124,7 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   })
 
   router.use((req, res, next) => {
-    if (env === "development") {
-      res.locals.user = {
-        sub: "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
-        email: "sandy@example.com",
-        email_verified: true,
-        phone_number: "+447700900451",
-        phone_number_verified: true,
-      }
-      res.locals.user.core_identity = getFakeDIClaimResponse('1975')
-    } else {
-      res.locals.user = req.user
-    }
+    req.session.user = req.user
     next()
   })
 
@@ -197,11 +186,19 @@ router.post('/eligibility_two', function (req, res) {
     if (req.session.data.test_ipv === true) {
       res.redirect('/login')
     } else {
-      // We need fake Digital Identity data
-      const birthYear = req.session.data.birth_year_number
-
+      if (typeof req.session.user === 'undefined') {
+        // We need a faked-up set of claims, because we skipped IPV
+        req.session.user = {
+          sub: "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
+          email: "sandy@example.com",
+          email_verified: true,
+          phone_number: "+447700900451",
+          phone_number_verified: true,
+        }
+        req.session.user.core_identity = getFakeDIClaimResponse('1975')
+      }
       // Identity claim set up
-      const distinctClaimNames = getClaimNames(getFakeDIClaimResponse(birthYear)) // All the names
+      const distinctClaimNames = getClaimNames(req.session.user.core_identity) // All the names
 
       // Set up session storage for current & previous names
       req.session.data.current_DI_name = distinctClaimNames[0]
