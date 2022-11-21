@@ -153,6 +153,7 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
   router.use((req, res, next) => {
     if (req.session.passport) {
+      // For Nunjucks convenience
       res.locals.user = req.session.passport.user
     }
     next()
@@ -212,30 +213,6 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
     }
   })
 
-  // router.post('/question_email_address_input', function (req, res) {
-  //   const email = req.session.data.question_email_address
-  //   const previousApplicationEmail = req.session.data.previous_application_email
-
-  //   if (!email) {
-  //     const error = { text: 'Enter your email address' }
-  //     return res.render('question_email_address', { error })
-  //   }
-
-  //   if (
-  //     email &&
-  //     validator.isEmail(email) &&
-  //     previousApplicationEmail.toString() === email
-  //   ) {
-  //     res.redirect('/govuk_previous_application_email')
-  //   }
-
-  //   if (email && validator.isEmail(email)) {
-  //     res.redirect('/govuk_create_check_email')
-  //   } else {
-  //     const error = { text: 'Enter a valid email address' }
-  //     return res.render('question_email_address', { error })
-  //   }
-  // })
 
   router.all('/question_name_from_identity_claim', function (req, res) {
 
@@ -257,13 +234,6 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
     // Set up session storage for current name
     // This will be printed on the card
     req.session.data.current_DI_name = distinctClaimNames[0]
-
-    // const previousNames = getPreviousNames(distinctClaimNames)
-    // req.session.data.previous_DI_names = previousNames
-
-    // previousNames.forEach((name, index) => {
-    //   req.session.data[`previous_DI_name_${index + 1}`] = name
-    // })
 
     res.render('question_name_from_identity_claim' )
   })
@@ -307,23 +277,6 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
     if (firstName && lastName) {
       req.session.data.name_at_discharge = `${firstName} ${lastName}`
       res.redirect('/certificate_upload')
-    }
-  })
-
-  router.post('/govuk_account_sign_in_input', function (req, res) {
-    const email = req.session.data.question_email_address
-
-    if (!email) {
-      const error = { text: 'Enter the email address you registered on GOV.UK' }
-      return res.render('govuk_account_sign_in', { error })
-    }
-
-    if (email && validator.isEmail(email)) {
-      req.session.data.question_email_address = email
-      res.redirect('/govuk_account_password')
-    } else {
-      const error = { text: 'Enter a valid email address' }
-      return res.render('govuk_account_sign_in', { error })
     }
   })
 
@@ -491,13 +444,6 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   })
 
   router.post('/upload_photo', function (req, res) {
-    // const answer = req.body.uploaded_user_photo
-
-    // if (!answer) {
-    //   const error = { text: "You must upload a valid photo" }
-    //   return res.render('upload_photo', { error })
-    // }
-
     res.redirect('/question_address_to_send_to')
   })
 
