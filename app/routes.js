@@ -567,7 +567,7 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
     if (answer === 'No') {
       req.session.data.comms_preference_email_address =
-        req.session.data.question_email_address
+        res.locals.user.email
 
       req.session.data.comms_preference_phone_number = removeStringWhiteSpace(
         req.session.data.phone_number.toString()
@@ -621,13 +621,13 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
     if (emailChoice === 'Yes' && emailAndSms) {
       req.session.data.comms_preference_email_address =
-        req.session.data.question_email_address
+        res.locals.user.email
       res.redirect('/question_phone_number_to_send_to_duo')
     }
 
     if (emailChoice === 'Yes') {
       req.session.data.comms_preference_email_address =
-        req.session.data.question_email_address
+        res.locals.user.email
       res.redirect('/vetcard_account_summary_extra')
     }
 
