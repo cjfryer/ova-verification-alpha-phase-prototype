@@ -254,8 +254,9 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
     res.locals.DI_names.push( { divider: "or" } )
     res.locals.DI_names.push( { value: "service_name_other", text: "I had a different name" } )
 
-    // Set up session storage for current & previous names
-    // req.session.data.current_DI_name = distinctClaimNames[0]
+    // Set up session storage for current name
+    // This will be printed on the card
+    req.session.data.current_DI_name = distinctClaimNames[0]
 
     // const previousNames = getPreviousNames(distinctClaimNames)
     // req.session.data.previous_DI_names = previousNames
@@ -727,7 +728,7 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
   router.post('/vetcard_account_summary_choice', function (req, res) {
     let idChoice = req.session.data.id_choice
-    const fullName = req.session.data.full_name
+    const fullName = req.session.data.name_at_discharge
     const postalAddress = req.session.data.postal_address
     const emailAddress = req.session.data.comms_preference_email_address
     const serviceNumber = req.session.data.question_service_number
