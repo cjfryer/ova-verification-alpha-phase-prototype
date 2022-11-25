@@ -6,13 +6,11 @@ const express = require('express')
 const router = express.Router()
 // Add your routes here - above the module.exports line
 const passport = require('passport')
-const { Issuer, Strategy, generators, custom } = require('openid-client')
+const { Issuer, custom } = require('openid-client')
 const rsaPemToJwk = require('rsa-pem-to-jwk')
 const { v4: uuidv4 } = require('uuid')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
-const credential_issuer = (typeof process.env.CREDENTIAL_ISSUER_URL === 'undefined') ?
-  "https://identity.integration.account.gov.uk/" : process.env.CREDENTIAL_ISSUER_URL
 
 const {
   // These are needed when we are NOT using Identity Proofing and Verification
@@ -60,60 +58,18 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   router.use(passport.initialize())
   router.use(passport.session())
 
-  const vtr = ["P2.Cl.Cm"] // https://govukverify.atlassian.net/browse/AUT-771
-  const claims = {
-    userinfo: {
-      "https://vocab.account.gov.uk/v1/coreIdentityJWT": {
-          essential: true
-      }
-    }
-  }
+  const {
+    govUK_IPV_Strategy,
+    govUK_SignIn_Strategy
+  } = require('./assets/javascripts/oidc-strategy.js')
 
-  passport.use(
-    'oidc',
-    new Strategy({
-      client,
-      params: {
-        scope: 'openid email phone',
-        nonce: generators.nonce(),
-        vtr: JSON.stringify(vtr),
-        claims: JSON.stringify(claims),
-      },
-      passReqToCallback: true,
-      sessionKey: 'data'
-    }, (req, tokenset, userinfo, done) => {
+  passport.use('govUKSignIn', govUK_SignIn_Strategy(client))
+  passport.use('govUKIPV', govUK_IPV_Strategy(client))
 
-      const core_id_jwt = userinfo["https://vocab.account.gov.uk/v1/coreIdentityJWT"]
-
-      if (!core_id_jwt) {
-        // I doubt this is necessary. We said this claim was 'essential'
-        let errorstring = 'coreIdentityJWT not present.'
-        console.log(errorstring)
-        return done(`${errorstring}. This means we could not prove your identity.`)
-      }
-
-      const verification_options = {
-        algorithms: ["ES256"],
-        issuer: credential_issuer,
-        subject: userinfo.sub,
-      }
-      const pubkey = process.env.SPOT_PUBLIC_KEY
-
-      jwt.verify(core_id_jwt, pubkey, verification_options, (err, decoded) => {
-        if (err) {
-          return done(`Could not validate coreIdentityJWT: ${err}`)
-        } else {
-          userinfo.core_identity = decoded // so the "profile" page can parse it
-          return done(null, userinfo)
-        }
-      })
-    })
-  )
-
-  const LocalStrategy = require('passport-local');
+  const LocalStrategy = require('passport-local')
 
   passport.use(new LocalStrategy(
-    // Fake userdata when we skip IPV
+    // Fake userdata
     function(username, password, done) {
       userinfo = {
         sub: "urn:fdc:gov.uk:2022:56P4CMsGh_02YOlWpd8PAOI-2sVlB2nsNU7mcLZYhYw=",
@@ -131,8 +87,11 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   router.get('/login', (req, res, next) => {
     if (req.session.data.test_ipv === true) {
       // Redirect to GOV.UK Sign In with IPV
-      passport.authenticate('oidc')(req, res, next)
+      passport.authenticate('govUKIPV')(req, res, next)
+    } else if (env === 'production') {
+        passport.authenticate('govUKSignIn')(req, res, next)
     } else {
+      // for local development, sign in transparently
       req.body.username = 'sandy'
       req.body.password = 'foo'
       passport.authenticate('local', {
@@ -143,7 +102,8 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   })
 
   router.get('/callback', (req, res, next) => {
-    passport.authenticate('oidc', {
+    const strategy = (req.session.data.test_ipv === true) ? 'govUKIPV' : 'govUKSignIn'
+    passport.authenticate(strategy, {
       successRedirect: '/profile',
       successMessage: true,
       failureRedirect: '/ipv_fail',
@@ -166,7 +126,6 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
   passport.deserializeUser(function (obj, cb) {
     cb(null, obj)
   })
-
 
   router.post('/start_veteran_apply_choice', function (req, res) {
     const answer = req.session.data.start_veteran_match_status
