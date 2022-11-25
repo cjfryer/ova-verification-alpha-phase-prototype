@@ -15,11 +15,16 @@ endblock %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-xl">
-      Prototype your service using GOV.UK Prototype Kit
-      <span class="govuk-caption-xl">{{releaseVersion}}</span>
-      <span class="govuk-caption-l">Digital prototype sprint 7 v7.2</span>
+      Apply for a Veteran's ID card
+      <span class="govuk-caption-xl">Prototype kit {{releaseVersion}}</span>
     </h1>
     {{releaseVersion | log }}
+
+    {{ govukWarningText({
+      text: "Only choose GOV.UK identity proofing and verification if you have been given the \"synthetic identity\" document.
+            You can't prove your own identity with this service.",
+      iconFallbackText: "Warning"
+    }) }}
 
     <form class="form" action="/start_veteran_apply_choice" method="post">
         {% from "govuk/components/radios/macro.njk" import govukRadios %}
@@ -27,40 +32,20 @@ endblock %}
         {{ govukRadios({
           idPrefix: "start_veteran_match_status",
           name: "start_veteran_match_status",
-          fieldset: {
-            legend: {
-              text: "Please select record match success or fail journey",
-              classes: "govuk-fieldset__legend--s"
-            }
-          },
           items: [
-            {
-              value: "Success",
-              text: "happy path - user automatically matched",
-              checked: checked("start_veteran_match_status", "Success")
-             
-            },
-            {
-              value: "Fail",
-              text: "unhappy path - needs manual verification after",
-              checked: checked("start_veteran_match_status", "Fail")
-             
-            },
             {
               value: "IPV",
               text: "use GOV.UK identity proofing and verification",
               checked: checked("start_veteran_match_status", "IPV")
+            },
+            {
+              value: "skip",
+              text: "skip straight to matching",
+              checked: checked("start_veteran_match_status", "skip")
             }
           ],
           errorMessage: error
         }) }}
-        
-         <h2 class="govuk-heading-s">Please note - when asked for your GOV.UK account</h2>
-         <ul class="govuk-list govuk-list--bullet">
-          <li>enter an email which you have access to in order to receive the summary email on completion of the user journey</li>
-          <li>you can enter any password</li>
-         </ul>
-         
         
        {{ govukButton({
           text: "Apply for a veteran's ID card"

@@ -9,19 +9,19 @@ your <a class="govuk-link" href="#">feedback</a> will help us to improve it.'})
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
   <h1 class="govuk-heading-l">Is this the email address you want to be contacted at?</h1>
-  
-  <p>{{data["question_email_address"]}}</p>
- 
+
+  <p>{{ user.email }}</p>
+
     <form class="form" action="question_email_to_send_to_choice" method="post">
-     
+
       {{
-      govukRadios({ 
-      idPrefix: "email_choice", 
+      govukRadios({
+      idPrefix: "email_choice",
       name: "email_choice",
-      fieldset: { legend: { text: "", 
-      isPageHeading: false, 
+      fieldset: { legend: { text: "",
+      isPageHeading: false,
       classes: "govuk-fieldset__legend--l"
-      } }, 
+      } },
       items: [
           {
             value: "Yes",
@@ -33,7 +33,7 @@ your <a class="govuk-link" href="#">feedback</a> will help us to improve it.'})
             text: "No",
             checked: checked("email_choice", "No")
           }
-        ], 
+        ],
       errorMessage: error }) }}
 
       <button class="govuk-button" id="btn" data-module="govuk-button">
