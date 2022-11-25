@@ -137,6 +137,9 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
     if (answer === 'IPV') {
       req.session.data.test_ipv = true
+    } else {
+      // In case the user backtracks and chooses differently
+      req.session.data.test_ipv = false
     }
 
     res.redirect('/start_veteran_apply')
