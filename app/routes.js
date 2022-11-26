@@ -636,7 +636,7 @@ Issuer.discover(process.env.ISSUER_BASE_URL).then(issuer => {
 
   router.post('/vetcard_account_summary_choice', function (req, res) {
     let idChoice = req.session.data.id_choice
-    const fullName = req.session.data.name_at_discharge
+    const fullName = req.session.data.current_DI_name
     const postalAddress = req.session.data.postal_address
     const emailAddress = req.session.data.comms_preference_email_address
     const serviceNumber = req.session.data.question_service_number
